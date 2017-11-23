@@ -39,7 +39,7 @@
 
 extern FILE *iniFD; // For creation of the Sim. INI Files
 
-void *getUnit(char *str)
+static void *getUnit(char *str)
 {
     // We parse the input for a known unit and return a pointer to the struct
     return NULL;
@@ -145,7 +145,7 @@ int execByteCode(compilePtr cmpPtr, int fd, char *recvBuf, short recvLen,
     compilePtr cPtr;
     unsigned long etime;
     char out_buff[1024];
-    int out_len;
+    int out_len  = 0;
 
     bzero(simIn, sizeof(simIn));
     bzero(simOut, sizeof(simOut));
@@ -391,7 +391,6 @@ int execCmd(char *cmd, int fd, char *recvBuf, int recvLen)
         logIT(LOG_INFO, "Recv: %ld ms", etime);
         // If we have a unit (== uPtr), we convert the received value and also return it to uPtr
         return hexlen;
-        break;
     case PAUSE:
         t = (int) hexlen / 1000;
         logIT(LOG_INFO, "Waiting %i s", t);
@@ -399,7 +398,7 @@ int execCmd(char *cmd, int fd, char *recvBuf, int recvLen)
         break;
     default:
         logIT(LOG_INFO, "Unknown command: %s", cmd);
-
+        break;
     }
 
     return 0;
@@ -445,7 +444,7 @@ void removeCompileList(compilePtr ptr)
     }
 }
 
-int expand(commandPtr cPtr, protocolPtr pPtr)
+static int expand(commandPtr cPtr, protocolPtr pPtr)
 {
     // Recursion
     if (! cPtr) {
@@ -586,7 +585,7 @@ int expand(commandPtr cPtr, protocolPtr pPtr)
     return 1;
 }
 
-compilePtr buildByteCode(commandPtr cPtr, unitPtr uPtr)
+static compilePtr buildByteCode(commandPtr cPtr, unitPtr uPtr)
 {
     // Recursion
     if (!cPtr) {
