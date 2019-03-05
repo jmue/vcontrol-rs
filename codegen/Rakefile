@@ -293,6 +293,8 @@ rule '.yml' => [TRANSLATIONS, DEVICES, MAPPINGS, DEFINITIONS, EVENT_TYPES, SYSTE
         'TiefpassTemperaturwert_KTS_A1'                 => 'flow_temperature_lowpass_a1m1',
         'HK_VT_Solltemperatur_A1M1'                     => 'flow_temperature_desired_a1m1',
         'HK_VT_Solltemperatur_M2'                       => 'flow_temperature_desired_m2',
+        'VT_SolltemperaturA1M1'                         => 'flow_temperature_desired_a1m1',
+        'VT_SolltemperaturM2'                           => 'flow_temperature_desired_m2',
         'VorlauftemperaturM2'                           => 'flow_temperature_actual_m2',
         'TemperaturFehler_17_NR1'                       => 'return_temperature_error_status',
         'TiefpassTemperaturwert_17_NR1'                 => 'return_temperature_lowpass_nr1',
@@ -397,6 +399,13 @@ rule '.yml' => [TRANSLATIONS, DEVICES, MAPPINGS, DEFINITIONS, EVENT_TYPES, SYSTE
         'Nachtkontakt_HKPM2'                            => 'heating_circuit_pump_night_contact_m2',
         'ResetCounter'                                  => 'reset_counter',
         'RelaistestV200KW2_NR1'                         => 'relay_test_v200kw2_nr1',
+        'Zirkulationspumpe'                             => 'circulation_pump_status',
+        'Solarkollektortemperatur'                      => 'solar_collector_temperature',
+        'SolarNachlade'                                 => 'solar_reheating_suppression',
+        'SolarPumpe'                                    => 'solar_circuit_pump',
+        'SolarSpeichertemperatur'                       => 'solar_cylinder_temperature',
+        'SolarStunden'                                  => 'solar_hours_run',
+        'SolarWaerme'                                   => 'solar_heat_volume',
       }
 
       id = if exact_mappings.key?(id)
@@ -413,12 +422,15 @@ rule '.yml' => [TRANSLATIONS, DEVICES, MAPPINGS, DEFINITIONS, EVENT_TYPES, SYSTE
 
         case conversion
         when 'NoConversion', nil then nil
+        when 'Div2' then 5
         when 'Div10' then 10
+        when 'Div100' then 100
         when 'Div1000' then 1000
         when 'Sec2Hour' then 3600
         when 'Mult2' then 0.5
         when 'Mult5' then 0.2
         when 'Mult10' then 0.1
+        when 'Mult100' then 0.01
         when 'MultOffset' then
           factor.to_f * (10 ** offset.to_f)
         when 'DateBCD' then nil
@@ -427,8 +439,9 @@ rule '.yml' => [TRANSLATIONS, DEVICES, MAPPINGS, DEFINITIONS, EVENT_TYPES, SYSTE
         when 'HourDiffSec2Hour' then nil
         when 'UTCDiff2Month' then nil
         when 'HexByte2AsciiByte' then nil
+        when 'HexByte2DecimalByte' then nil
         when 'Estrich' then nil
-        when 'FixedStringTerminalZeroes' nil
+        when 'FixedStringTerminalZeroes' then nil
         else
           raise "No factor for conversion '#{conversion}'."
         end
