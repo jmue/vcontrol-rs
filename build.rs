@@ -16,7 +16,7 @@ mod types;
 use self::types::*;
 
 fn main() {
-  let device = "V200KW2_6";
+  let device = "VSCOTHO1";
 
   let config_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("config").join(format!("{}.yml", device));
 
@@ -57,8 +57,6 @@ fn main() {
       }}
     }}
   ", device, device, protocol, device).unwrap();
-
-  write!(&mut file, "pub type V200KW2 = V200KW2_6;").unwrap();
 }
 
 #[derive(Debug, Deserialize)]
