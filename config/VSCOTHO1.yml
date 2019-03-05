@@ -1,0 +1,715 @@
+device:
+  protocol: P300
+
+temp_i16: &temp_i16
+  unit: i16
+  factor: 10
+state: &state
+  unit: u8
+  mapping:
+    [0x00]: OFF
+    [0x01]: ON
+temp_error_state: &temp_error_state
+  unit: u8
+  mapping:
+    [0x00]: 'OK'
+    [0x01]: 'Kurzschluss'
+    [0x02]: 'Unterbrechung'
+    [0x03]: 'Referenzfehler'
+    [0x04]: 'Referenzfehler'
+    [0x05]: 'Referenzfehler'
+    [0x06]: 'nicht vorhanden'
+cycletime: &cycletime
+  unit: cycletime
+systime: &systime
+  unit: systime
+error_time: &error_time
+  <<: *systime
+  block_len: 9
+  byte_pos: 1
+error_state: &error_state
+  block_len: 9
+  unit: u8
+  mapping:
+    [0x00]: 'Normalbetrieb'
+    [0x0F]: 'Normalbetrieb-Wartung'
+    [0x10]: 'Notbetrieb-Außentemp'
+    [0x18]: 'Notbetrieb-Außentemp'
+    [0x20]: 'Ausfall HK M2-Vorlauftemp'
+    [0x21]: 'Notbetrieb HK M2- Rücklauft'
+    [0x28]: 'Ausfall HK M2-Vorlauftemp'
+    [0x29]: 'Notbetrieb HK M2- Rücklauft'
+    [0x30]: 'Notbetrieb-Kesseltemp'
+    [0x38]: 'Notbetrieb-Kesseltemp'
+    [0x40]: 'Ausfall HK M3-Vorlauftemp'
+    [0x41]: 'Notbetrieb HK M3-Rücklauft'
+    [0x48]: 'Ausfall HK M3-Vorlauftemp'
+    [0x49]: 'Notbetrieb HK M3-Rücklauft'
+    [0x50]: 'Notbetrieb-Speichertemp'
+    [0x51]: 'Notbetrieb-Speichertemp'
+    [0x58]: 'Notbetrieb-Speichertemp'
+    [0x59]: 'Notbetrieb-Speichertemp'
+    [0x92]: 'Notbetrieb-Kollektortemp'
+    [0x93]: 'Notbetrieb-Speichertemp.Sol'
+    [0x94]: 'Notbetrieb-Speichertemp.Sol'
+    [0x9A]: 'Notbetrieb-Kollektortemp'
+    [0x9B]: 'Notbetrieb-Speichertemp.Sol'
+    [0x9C]: 'Notbetrieb-Speichertemp.Sol'
+    [0x9F]: 'Notbetrieb-Solarregelung'
+    [0xB0]: 'Normalbetrieb-Abgastemp'
+    [0xB1]: 'Notbetrieb-Komm-Bedienteil'
+    [0xB4]: 'Notbetrieb-Störung Intern'
+    [0xB5]: 'Notbetrieb-Störung Intern'
+    [0xB6]: 'Notbetrieb-Störung Intern'
+    [0xB7]: 'Notbetrieb-Codierstecker'
+    [0xB8]: 'Normalbetrieb-Abgastemp'
+    [0xB9]: 'Notbetrieb-Störung Interner'
+    [0xBA]: 'Notbetrieb-HK Mischer M2'
+    [0xBB]: 'Notbetrieb-HK Mischer M3'
+    [0xBC]: 'Notbetrieb-Fernbedien.HK A1'
+    [0xBD]: 'Notbetrieb-Fernbedien.HK M2'
+    [0xBE]: 'Notbetrieb-Fernbedien.HK.M3'
+    [0xC1]: 'Ausfall Anlage-ExtSIcherheit'
+    [0xC2]: 'Notbetrieb-Komm. Solar'
+    [0xC4]: 'Notbetrieb-Kommunikation'
+    [0xC5]: 'Notbetrieb-Pumpe HK A1'
+    [0xC6]: 'Notbetrieb-Pumpe HK M2'
+    [0xC7]: 'Notbetrieb-Pumpe HK M3'
+    [0xC9]: 'Notbetrieb-ext. Gerät'
+    [0xCD]: 'Ausfall Anlagenüberwachung'
+    [0xCE]: 'Notbetrieb-Schaltmodule V'
+    [0xCF]: 'Notbetrieb-Komm.2Draht-Bus'
+    [0xD1]: 'Ausfall Anlage: Brennerstörung'
+    [0xD4]: 'Ausfall Anlage-Temp.Begrenz.'
+    [0xDA]: 'Notbetrieb-Raumtemp HK A1'
+    [0xDB]: 'Notbetrieb-Raumtemp HK M2'
+    [0xDC]: 'Notbetrieb-Raumtemp HK M3'
+    [0xDD]: 'Notbetrieb-Raumtemp HK A1'
+    [0xDE]: 'Notbetrieb-Raumtemp HK M2'
+    [0xDF]: 'Notbetrieb-Raumtemp HK M3'
+    [0xE0]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xE1]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xE2]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xE3]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xE4]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xE5]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xE6]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xE7]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xE8]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xE9]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xEA]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xEB]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xEC]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xED]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xEE]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xEF]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF0]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF1]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF2]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF3]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF4]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF5]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF6]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF7]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF8]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xF9]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xFA]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xFB]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xFC]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xFD]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xFE]: 'Ausfall Anlage-2 Draht-Bus'
+    [0xFF]: 'Ausfall Anlage-2 Draht-Bus'
+
+commands:
+  system_type:
+    addr: 0x00F8
+    mode: read
+    unit: u16
+    mapping:  
+      [0x20, 0xB4]: V050HK1M
+      [0x20, 0xAC]: V050HK1S
+      [0x20, 0xAA]: V050HK1W
+      [0x20, 0xAD]: V050HK3S
+      [0x20, 0xAB]: V050HK3W
+      [0x20, 0xA0]: V100GC1
+      [0x20, 0x91]: V100KC2
+      [0x20, 0x92]: V150KB1
+      [0x20, 0xA4]: V200GW1
+      [0x20, 0x94]: V200KW1
+      [0x20, 0x98]: V200KW2
+      [0x20, 0xA5]: V300GW2
+      [0x20, 0x9C]: V300KW3
+      [0x20, 0xB8]: V333MW1
+      [0x20, 0xB9]: V333MW1S
+      [0x20, 0xBA]: V333MW2
+      [0x20, 0x33]: VBC550P
+      [0x20, 0x32]: VBC550S
+      [0x20, 0x47]: VBC700_AW
+      [0x20, 0x46]: VBC700_BW_WW
+      [0x20, 0xC0]: VDensHC1
+      [0x20, 0xC1]: VDensHC2
+      [0x20, 0xC2]: VDensHO1
+      [0x20, 0xC3]: VPendHC1
+      [0x20, 0xC4]: VPendHC2
+      [0x20, 0xC5]: VPendHO1
+      [0x20, 0xC6]: VPlusHC1
+      [0x20, 0xC7]: VPlusHC2
+      [0x20, 0xC8]: VPlusHO1
+      [0x20, 0xC9]: VScotHC1
+      [0x20, 0xCA]: VScotHC2
+      [0x20, 0xCB]: VScotHO1
+  date_time: 
+    <<: *systime
+    addr: 0x088E
+    mode: read_write
+  economy_mode_a1m1:
+    <<: *state
+    addr: 0x2302
+    mode: read_write
+  economy_mode_m2:
+    <<: *state
+    addr: 0x3302
+    mode: read_write
+  party_mode_a1m1:
+    <<: *state
+    addr: 0x2303
+    mode: read_write
+  party_mode_m2:
+    <<: *state
+    addr: 0x3303
+    mode: read_write
+  holiday_program_a1m1:
+    addr: 0x2535
+    unit: u8
+    bit_pos: 7
+    mapping:
+      [0x00]: OFF
+      [0x01]: ON
+    mode: read
+  holiday_program_m2:
+    addr: 0x3535
+    unit: u8
+    bit_pos: 7
+    mapping:
+      [0x00]: OFF
+      [0x01]: ON
+    mode: read
+  holiday_departure_date_a1m1:
+    <<: *systime
+    addr: 0x2309
+    mode: read_write
+  holiday_departure_date_m2:
+    <<: *systime
+    addr: 0x3309
+    mode: read_write
+  holiday_return_date_a1m1:
+    <<: *systime
+    addr: 0x2311
+    mode: read_write
+  holiday_return_date_m2:
+    <<: *systime
+    addr: 0x3311
+    mode: read_write
+  boiler_temperature_lowpass:
+    <<: *temp_i16
+    addr: 0x0810
+    mode: read
+  boiler_temperature_desired:
+    <<: *temp_i16
+    addr: 0x55E0
+    mode: read
+    block_len: 17
+    byte_pos: 10
+  boiler_temperature_desired_effective:
+    <<: *temp_i16
+    addr: 0x555A
+    mode: read
+    block_len: 17
+    byte_pos: 10
+  burner_starts:
+    addr: 0x088A
+    unit: u32
+    mode: read
+  burner_hours_run:
+    addr: 0x08A7
+    unit: u32
+    factor: 3600
+    mode: read
+  outside_temperature_adjusted:
+    <<: *temp_i16
+    addr: 0x5527
+    mode: read
+  outside_temperature_lowpass:
+    <<: *temp_i16
+    addr: 0x5525
+    mode: read
+  circulation_pump:
+    <<: *state
+    addr: 0x6515
+    mode: read
+  dhw_circulation_pump_switching_times_a1m1_mon:
+    <<: *cycletime
+    addr: 0x2200
+    mode: read_write
+  dhw_circulation_pump_switching_times_a1m1_tue:
+    <<: *cycletime
+    addr: 0x2208
+    mode: read_write
+  dhw_circulation_pump_switching_times_a1m1_wed:
+    <<: *cycletime
+    addr: 0x2210
+    mode: read_write
+  dhw_circulation_pump_switching_times_a1m1_thu:
+    <<: *cycletime
+    addr: 0x2218
+    mode: read_write
+  dhw_circulation_pump_switching_times_a1m1_fri:
+    <<: *cycletime
+    addr: 0x2220
+    mode: read_write
+  dhw_circulation_pump_switching_times_a1m1_sat:
+    <<: *cycletime
+    addr: 0x2228
+    mode: read_write
+  dhw_circulation_pump_switching_times_a1m1_sun:
+    <<: *cycletime
+    addr: 0x2230
+    mode: read_write
+  dhw_circulation_pump_switching_times_m2_mon:
+    <<: *cycletime
+    addr: 0x3200
+    mode: read_write
+  dhw_circulation_pump_switching_times_m2_tue:
+    <<: *cycletime
+    addr: 0x3208
+    mode: read_write
+  dhw_circulation_pump_switching_times_m2_wed:
+    <<: *cycletime
+    addr: 0x3210
+    mode: read_write
+  dhw_circulation_pump_switching_times_m2_thu:
+    <<: *cycletime
+    addr: 0x3218
+    mode: read_write
+  dhw_circulation_pump_switching_times_m2_fri:
+    <<: *cycletime
+    addr: 0x3220
+    mode: read_write
+  dhw_circulation_pump_switching_times_m2_sat:
+    <<: *cycletime
+    addr: 0x3228
+    mode: read_write
+  dhw_circulation_pump_switching_times_m2_sun:
+    <<: *cycletime
+    addr: 0x3230
+    mode: read_write
+  dhw_temperature_desired:
+    addr: 0x6300
+    unit: u8
+    mode: read_write
+  dhw_temperature_desired_effective:
+    <<: *temp_i16
+    addr: 0x6500
+    mode: read_write
+  dhw_temperature_lowpass_cts1:
+    <<: *temp_i16
+    addr: 0x0812
+    mode: read
+  dhw_temperature_lowpass_cts2:
+    <<: *temp_i16
+    addr: 0x0814
+    mode: read
+  dhw_switching_times_a1m1_mon:
+    <<: *cycletime
+    addr: 0x2100
+    mode: read_write
+  dhw_switching_times_a1m1_tue:
+    <<: *cycletime
+    addr: 0x2108
+    mode: read_write
+  dhw_switching_times_a1m1_wed:
+    <<: *cycletime
+    addr: 0x3110
+    mode: read_write
+  dhw_switching_times_a1m1_thu:
+    <<: *cycletime
+    addr: 0x2118
+    mode: read_write
+  dhw_switching_times_a1m1_fri:
+    <<: *cycletime
+    addr: 0x2120
+    mode: read_write
+  dhw_switching_times_a1m1_sat:
+    <<: *cycletime
+    addr: 0x2128
+    mode: read_write
+  dhw_switching_times_a1m1_sun:
+    <<: *cycletime
+    addr: 0x2130
+    mode: read_write
+  dhw_switching_times_m2_mon:
+    <<: *cycletime
+    addr: 0x3100
+    mode: read_write
+  dhw_switching_times_m2_tue:
+    <<: *cycletime
+    addr: 0x3108
+    mode: read_write
+  dhw_switching_times_m2_wed:
+    <<: *cycletime
+    addr: 0x3110
+    mode: read_write
+  dhw_switching_times_m2_thu:
+    <<: *cycletime
+    addr: 0x3118
+    mode: read_write
+  dhw_switching_times_m2_fri:
+    <<: *cycletime
+    addr: 0x3120
+    mode: read_write
+  dhw_switching_times_m2_sat:
+    <<: *cycletime
+    addr: 0x3128
+    mode: read_write
+  dhw_switching_times_m2_sun:
+    <<: *cycletime
+    addr: 0x3130
+    mode: read_write
+  heating_circuit_operating_mode_effective_a1m1:
+    addr: 0x2500
+    block_len: 22
+    byte_pos: 1
+    unit: u8
+    mapping:
+      [0x00]: 'Abschaltbetrieb'
+      [0x01]: 'Reduzierter Betrieb'
+      [0x02]: 'Normalbetrieb'
+      [0x03]: 'Normalbetrieb'
+    mode: read
+  heating_circuit_operating_mode_effective_m2:
+    addr: 0x3500
+    block_len: 22
+    byte_pos: 1
+    unit: u8
+    mapping:
+      [0x00]: 'Abschaltbetrieb'
+      [0x01]: 'Reduzierter Betrieb'
+      [0x02]: 'Normalbetrieb'
+      [0x03]: 'Normalbetrieb'
+    mode: read
+  heating_circuit_pump_m2:
+    <<: *state
+    addr: 0x3906
+    mode: read
+  flow_temperature_actual_m2:
+    <<: *temp_i16
+    addr: 0x3900
+    mode: read
+  flow_temperature_desired_a1m1:
+    <<: *temp_i16
+    addr: 0x2544
+    mode: read
+  flow_temperature_desired_m2:
+    <<: *temp_i16
+    addr: 0x3544
+    mode: read
+  heating_circuit_switching_times_a1m1_mon:
+    <<: *cycletime
+    addr: 0x2000
+    mode: read_write
+  heating_circuit_switching_times_a1m1_tue:
+    <<: *cycletime
+    addr: 0x2008
+    mode: read_write
+  heating_circuit_switching_times_a1m1_wed:
+    <<: *cycletime
+    addr: 0x2010
+    mode: read_write
+  heating_circuit_switching_times_a1m1_thu:
+    <<: *cycletime
+    addr: 0x2018
+    mode: read_write
+  heating_circuit_switching_times_a1m1_fri:
+    <<: *cycletime
+    addr: 0x2020
+    mode: read_write
+  heating_circuit_switching_times_a1m1_sat:
+    <<: *cycletime
+    addr: 0x2028
+    mode: read_write
+  heating_circuit_switching_times_a1m1_sun:
+    <<: *cycletime
+    addr: 0x2030
+    mode: read_write
+  heating_circuit_switching_times_m2_mon:
+    <<: *cycletime
+    addr: 0x3000
+    mode: read_write
+  heating_circuit_switching_times_m2_tue:
+    <<: *cycletime
+    addr: 0x3008
+    mode: read_write
+  heating_circuit_switching_times_m2_wed:
+    <<: *cycletime
+    addr: 0x3010
+    mode: read_write
+  heating_circuit_switching_times_m2_thu:
+    <<: *cycletime
+    addr: 0x3018
+    mode: read_write
+  heating_circuit_switching_times_m2_fri:
+    <<: *cycletime
+    addr: 0x3020
+    mode: read_write
+  heating_circuit_switching_times_m2_sat:
+    <<: *cycletime
+    addr: 0x3028
+    mode: read_write
+  heating_circuit_switching_times_m2_sun:
+    <<: *cycletime
+    addr: 0x3030
+    mode: read_write
+  room_temperature_lowpass_a1m1:
+    <<: *temp_i16
+    addr: 0x0896
+    mode: read
+  room_temperature_lowpass_m2:
+    <<: *temp_i16
+    addr: 0x0898
+    mode: read
+  room_temperature_desired_effective_a1m1:
+    <<: *temp_i16
+    addr: 0x2500
+    block_len: 22
+    byte_pos: 12
+    mode: read
+  room_temperature_desired_effective_m2:
+    <<: *temp_i16
+    addr: 0x3500
+    block_len: 22
+    byte_pos: 12
+    mode: read
+  room_temperature_desired_a1m1:
+    addr: 0x2306
+    unit: u8
+    mode: read_write
+  room_temperature_desired_m2:
+    addr: 0x3306
+    unit: u8
+    mode: read_write
+  room_temperature_desired_extern_a1m2:
+    addr: 0x2321
+    unit: u8
+    mode: read_write
+  room_temperature_desired_extern_m2:
+    addr: 0x3321
+    unit: u8
+    mode: read_write
+  room_temperature_desired_reduced_a1m1:
+    addr: 0x2307
+    unit: u8
+    mode: read_write
+  room_temperature_desired_reduced_m2:
+    addr: 0x3307
+    unit: u8
+    mode: read_write
+  frost_risk_a1m1:
+    <<: *state
+    addr: 0x2500
+    block_len: 22
+    byte_pos: 16
+    mode: read
+  frost_risk_m2:
+    <<: *state
+    addr: 0x3500
+    block_len: 22
+    byte_pos: 16
+    mode: read
+  solar_collector_temperature:
+    <<: *temp_i16
+    addr: 0x6564
+    mode: read
+  solar_reheating_suppression:
+    <<: *state
+    addr: 0x6551
+    mode: read
+  solar_cylinder_temperature:
+    <<: *temp_i16
+    addr: 0x6566
+    mode: read
+  solar_hours_run:
+    addr: 0x6568
+    mode: read
+    unit: u16
+  solar_heat_volume:
+    addr: 0x6560
+    mode: read
+    unit: u32
+  solar_circuit_pump:
+    <<: *state
+    addr: 0x6552
+    mode: read
+  cylinder_primary_pump:
+    <<: *state
+    addr: 0x6513
+    mode: read_write
+  fault_history_01:
+    <<: *error_state
+    addr: 0x7590
+    mode: read
+  fault_history_01_time:
+    <<: *error_time
+    addr: 0x7590
+    mode: read
+  fault_history_02:
+    <<: *error_state
+    addr: 0x7599
+    mode: read
+  fault_history_02_time:
+    <<: *error_time
+    addr: 0x7599
+    mode: read
+  fault_history_03:
+    <<: *error_state
+    addr: 0x75A2
+    mode: read
+  fault_history_03_time:
+    <<: *error_time
+    addr: 0x75A2
+    mode: read
+  fault_history_04:
+    <<: *error_state
+    addr: 0x75AB
+    mode: read
+  fault_history_04_time:
+    <<: *error_time
+    addr: 0x75AB
+    mode: read
+  fault_history_05:
+    <<: *error_state
+    addr: 0x75B4
+    mode: read
+  fault_history_05_time:
+    <<: *error_time
+    addr: 0x75B4
+    mode: read
+  fault_history_06:
+    <<: *error_state
+    addr: 0x75BD
+    mode: read
+  fault_history_06_time:
+    <<: *error_time
+    addr: 0x75BD
+    mode: read
+  fault_history_07:
+    <<: *error_state
+    addr: 0x75C6
+    mode: read
+  fault_history_07_time:
+    <<: *error_time
+    addr: 0x75C6
+    mode: read
+  fault_history_08:
+    <<: *error_state
+    addr: 0x75CF
+    mode: read
+  fault_history_08_time:
+    <<: *error_time
+    addr: 0x75CF
+    mode: read
+  fault_history_09:
+    <<: *error_state
+    addr: 0x75D8
+    mode: read
+  fault_history_09_time:
+    <<: *error_time
+    addr: 0x75D8
+    mode: read
+  fault_history_10:
+    <<: *error_state
+    addr: 0x75E1
+    mode: read
+  fault_history_10_time:
+    <<: *error_time
+    addr: 0x75E1
+    mode: read
+  fault_history_11:
+    <<: *error_state
+    addr: 0x75EA
+    mode: read
+  fault_history_11_time:
+    <<: *error_time
+    addr: 0x75EA
+    mode: read
+  fault_history_12:
+    <<: *error_state
+    addr: 0x75F3
+    mode: read
+  fault_history_12_time:
+    <<: *error_time
+    addr: 0x75F3
+    mode: read
+  fault_history_13:
+    <<: *error_state
+    addr: 0x75FC
+    mode: read
+  fault_history_13_time:
+    <<: *error_time
+    addr: 0x75FC
+    mode: read
+  fault_history_14:
+    <<: *error_state
+    addr: 0x7605
+    mode: read
+  fault_history_14_time:
+    <<: *error_time
+    addr: 0x7605
+    mode: read
+  fault_history_15:
+    <<: *error_state
+    addr: 0x760E
+    mode: read
+  fault_history_15_time:
+    <<: *error_time
+    addr: 0x760E
+    mode: read
+  fault_history_16:
+    <<: *error_state
+    addr: 0x7617
+    mode: read
+  fault_history_16_time:
+    <<: *error_time
+    addr: 0x7617
+    mode: read
+  fault_history_17:
+    <<: *error_state
+    addr: 0x7620
+    mode: read
+  fault_history_17_time:
+    <<: *error_time
+    addr: 0x7620
+    mode: read
+  fault_history_18:
+    <<: *error_state
+    addr: 0x7629
+    mode: read
+  fault_history_18_time:
+    <<: *error_time
+    addr: 0x7629
+    mode: read
+  fault_history_19:
+    <<: *error_state
+    addr: 0x7632
+    mode: read
+  fault_history_19_time:
+    <<: *error_time
+    addr: 0x7632
+    mode: read
+  fault_history_20:
+    <<: *error_state
+    addr: 0x763B
+    mode: read
+  fault_history_20_time:
+    <<: *error_time
+    addr: 0x763B
+    mode: read
